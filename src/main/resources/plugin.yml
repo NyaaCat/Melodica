@@ -1,0 +1,22 @@
+name: Melodica
+main: cat.nyaa.melodica.MelodicaPlugin
+description: "Melodica music plugin"
+version: 1.0
+depend: [NyaaCore]
+authors: [ReinWD]
+website: "https://github.com/NyaaCat/Melodica"
+database: false
+api-version: 1.13
+
+commands:
+  melodica:
+    description: Melodica's minion extension
+    aliases: mel
+    permission: melodica
+    permission-message: "You do not have the required permission: <permission>"
+    usage: "/<command> [SubCommand...] [Arguments...] or /<command> help"
+
+permissions:
+  melodica:
+    default: op
+
