@@ -1,11 +1,12 @@
 package cat.nyaa.melodica.api;
 
 public interface IMusicTask {
+    PlayInfo getPlayInfo();
     TaskStatus getStatus();
-    boolean isLoop();
 
     void stop();
+    void pause();
     void start();
-    void start(int maxTick);
+    void reset();
     void loop(boolean willLoop);
 }

@@ -68,7 +68,7 @@ public class MainSheetLoader implements ISheetLoader {
     }
 
     public static void registerLoader(String s, ISheetLoader loaderNBS) {
-
+        //todo
     }
 
 
@@ -79,5 +79,10 @@ public class MainSheetLoader implements ISheetLoader {
         }catch (IOException e){
             throw new RuntimeException("error loading file"+name);
         }
+    }
+
+    @Override
+    public File getDirectory() {
+        return sheetDir;
     }
 }
