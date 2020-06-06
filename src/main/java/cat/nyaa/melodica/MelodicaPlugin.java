@@ -1,6 +1,5 @@
 package cat.nyaa.melodica;
 
-import cat.nyaa.melodica.api.IMusicSheet;
 import cat.nyaa.melodica.api.IMusicTask;
 import cat.nyaa.melodica.api.MelodicaAPI;
 import cat.nyaa.melodica.api.PlayInfo;
@@ -13,13 +12,24 @@ public class MelodicaPlugin extends JavaPlugin implements MelodicaAPI {
     public static MelodicaPlugin plugin;
 
     public Configuration mainConfig;
+    public SheetManager sheetManager;
+    public MelodicaCommand melodicaCommand;
+    public I18n i18n;
 
     @Override
     public void onEnable() {
         super.onEnable();
         plugin = this;
+        reload();
+        sheetManager = SheetManager.getInstance();
+        melodicaCommand = new MelodicaCommand(this, i18n);
+        sheetManager.load();
+    }
+
+    private void reload() {
         mainConfig = new Configuration();
         mainConfig.load();
+        i18n.setLanguage(mainConfig.language);
     }
 
     @Override

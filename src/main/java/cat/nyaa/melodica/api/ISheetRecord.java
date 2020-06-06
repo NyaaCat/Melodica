@@ -1,6 +1,8 @@
 package cat.nyaa.melodica.api;
 
-public interface ISheetRecord {
+import cat.nyaa.nyaacore.configuration.ISerializable;
+
+public interface ISheetRecord extends ISerializable {
     int getTick();
     INote getNote();
 }

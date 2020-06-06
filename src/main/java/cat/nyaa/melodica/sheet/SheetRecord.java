@@ -4,7 +4,9 @@ import cat.nyaa.melodica.api.INote;
 import cat.nyaa.melodica.api.ISheetRecord;
 
 public class SheetRecord implements ISheetRecord {
+    @Serializable
     int tick;
+    @Serializable
     INote note;
 
     public SheetRecord(int tick, INote note) {

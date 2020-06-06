@@ -7,13 +7,15 @@ import org.bukkit.Sound;
 import java.util.*;
 
 public class MusicSheetImpl implements IMusicSheet {
+    @Serializable
     Map<String, Collection<ISheetRecord>> sheetStructure;
+    @Serializable
     Map<Integer, Collection<ISheetRecord>> compiledSheet;
 
     private boolean compiled = false;
     private boolean compiling = false;
     private int modCount = 0;
-    private int compileVersion = 0;
+    private int lastCompiled = 0;
 
     public MusicSheetImpl() {
         sheetStructure = new LinkedHashMap<>();
@@ -54,13 +56,17 @@ public class MusicSheetImpl implements IMusicSheet {
 
     private void ensureCompiled() {
         if (compiling) {
-            try {
-                this.wait();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            synchronized (this) {
+                if (compiling) {
+                    try {
+                        this.wait();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
         }
-        if (!compiled || compileVersion != modCount) {
+        if (!compiled || lastCompiled != modCount) {
             compile();
         }
     }
@@ -78,7 +84,7 @@ public class MusicSheetImpl implements IMusicSheet {
                             Collection<ISheetRecord> iSheetRecords = result.computeIfAbsent(tick, integer -> new LinkedList<>());
                             iSheetRecords.add(sheetRecord);
                         });
-                this.compileVersion = compileVersion;
+                this.lastCompiled = compileVersion;
             }
             this.compiledSheet = result;
             this.compiled = true;
@@ -91,11 +97,11 @@ public class MusicSheetImpl implements IMusicSheet {
     public static class Builder {
         private Map<String, Collection<ISheetRecord>> tracks;
 
-        public Builder(){
+        public Builder() {
             tracks = new LinkedHashMap<>();
         }
 
-        public Builder add(ISheetRecord record){
+        public Builder add(ISheetRecord record) {
             Sound sound = record.getNote().getSound();
             String name = sound.name();
             Collection<ISheetRecord> iSheetRecords = tracks.computeIfAbsent(name, s -> new LinkedList<>());
@@ -103,7 +109,7 @@ public class MusicSheetImpl implements IMusicSheet {
             return this;
         }
 
-        public MusicSheetImpl build(){
+        public MusicSheetImpl build() {
             MusicSheetImpl musicSheet = new MusicSheetImpl();
             musicSheet.sheetStructure = tracks;
             return musicSheet;
