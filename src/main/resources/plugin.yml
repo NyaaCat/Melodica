@@ -10,7 +10,7 @@ api-version: 1.13
 
 commands:
   melodica:
-    description: Melodica's minion extension
+    description: Melodica's main command
     aliases: mel
     permission: melodica
     permission-message: "You do not have the required permission: <permission>"
