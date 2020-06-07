@@ -72,10 +72,10 @@ public class MusicSheetImpl implements IMusicSheet {
     }
 
     public void compile() {
-        try {
-            compiling = true;
-            TreeMap<Integer, Collection<ISheetRecord>> result = new TreeMap<>();
-            synchronized (this) {
+        synchronized (this) {
+            try {
+                compiling = true;
+                TreeMap<Integer, Collection<ISheetRecord>> result = new TreeMap<>();
                 int compileVersion = modCount;
                 sheetStructure.values().stream()
                         .flatMap(Collection::stream)
@@ -85,12 +85,12 @@ public class MusicSheetImpl implements IMusicSheet {
                             iSheetRecords.add(sheetRecord);
                         });
                 this.lastCompiled = compileVersion;
+                this.compiledSheet = result;
+                this.compiled = true;
+            } finally {
+                compiling = false;
+                this.notifyAll();
             }
-            this.compiledSheet = result;
-            this.compiled = true;
-        } finally {
-            compiling = false;
-            this.notifyAll();
         }
     }
 

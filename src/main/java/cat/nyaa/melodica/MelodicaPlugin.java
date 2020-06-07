@@ -20,16 +20,19 @@ public class MelodicaPlugin extends JavaPlugin implements MelodicaAPI {
     public void onEnable() {
         super.onEnable();
         plugin = this;
+        i18n = new I18n();
         reload();
-        sheetManager = SheetManager.getInstance();
         melodicaCommand = new MelodicaCommand(this, i18n);
-        sheetManager.load();
+        getCommand("melodica").setExecutor(melodicaCommand);
+
     }
 
-    private void reload() {
+    public void reload() {
         mainConfig = new Configuration();
         mainConfig.load();
         i18n.setLanguage(mainConfig.language);
+        sheetManager = SheetManager.getInstance();
+        sheetManager.load();
     }
 
     @Override

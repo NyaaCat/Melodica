@@ -42,6 +42,11 @@ public class MelodicaCommand extends CommandReceiver {
         MelodicaPlugin.plugin.play(playInfo, player);
     }
 
+    @SubCommand(value = "reload", permission = "melodica")
+    public void onReload(CommandSender sender, Arguments arguments){
+        MelodicaPlugin.plugin.reload();
+    }
+
     private PlayInfo resolvePlayInfo(CommandSender sender, Arguments arguments) {
         PlayInfo playInfo = new PlayInfo();
         if (arguments.top() != null) {

@@ -1,5 +1,6 @@
 package cat.nyaa.melodica.sheet;
 
+import cat.nyaa.melodica.MelodicaPlugin;
 import cat.nyaa.melodica.api.*;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -38,6 +39,7 @@ public class MelodicaPlayer {
         private Location location;
         private Entity entity;
         private TaskStatus status = TaskStatus.IDLE;
+        private boolean started = false;
 
         public PlayTask(PlayInfo iMusicSheet, Location location) {
             this.info = iMusicSheet;
@@ -53,6 +55,7 @@ public class MelodicaPlayer {
 
         @Override
         public void run() {
+            started = true;
             if (status == TaskStatus.PAUSED){
                 return;
             }
@@ -74,8 +77,15 @@ public class MelodicaPlayer {
                     }
                 });
                 currentTick++;
-                if (currentTick > finishTick) {
+                if (finishTick != -1 && currentTick > finishTick) {
                     this.cancel();
+                }
+                if (currentTick > iMusicSheet.getLength()){
+                    if (info.isLoop()){
+                        currentTick = 0;
+                    }else {
+                        this.cancel();
+                    }
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -106,6 +116,10 @@ public class MelodicaPlayer {
         @Override
         public void start() {
             status = TaskStatus.PLAYING;
+            if (!started){
+                runTaskTimer(MelodicaPlugin.plugin, 0, 1);
+                started = true;
+            }
         }
 
         @Override
