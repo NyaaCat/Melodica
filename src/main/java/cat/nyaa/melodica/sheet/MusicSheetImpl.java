@@ -2,15 +2,16 @@ package cat.nyaa.melodica.sheet;
 
 import cat.nyaa.melodica.api.IMusicSheet;
 import cat.nyaa.melodica.api.ISheetRecord;
+import cat.nyaa.melodica.api.ITrack;
 import org.bukkit.Sound;
 
 import java.util.*;
 
 public class MusicSheetImpl implements IMusicSheet {
     @Serializable
-    Map<String, Collection<ISheetRecord>> sheetStructure;
+    Map<String, ITrack> sheetStructure;
     @Serializable
-    Map<Integer, Collection<ISheetRecord>> compiledSheet;
+    Map<Integer, ITrack> compiledSheet;
 
     private boolean compiled = false;
     private boolean compiling = false;
@@ -22,15 +23,20 @@ public class MusicSheetImpl implements IMusicSheet {
     }
 
     @Override
-    public String addTrack(Collection<ISheetRecord> sheetRecord) {
-        int size = sheetStructure.size();
-        String key = String.valueOf(size);
+    public String addTrack(ITrack sheetRecord) {
+        String key = getNewTrackName();
         sheetStructure.put(key, sheetRecord);
         return key;
     }
 
+    private String getNewTrackName() {
+        int size = sheetStructure.size();
+        String key = String.valueOf(size);
+        return key;
+    }
+
     @Override
-    public boolean addTrack(String name, Collection<ISheetRecord> sheetRecord) {
+    public boolean addTrack(String name, ITrack sheetRecord) {
         if (sheetStructure.containsKey(name)) {
             return false;
         }
@@ -39,9 +45,9 @@ public class MusicSheetImpl implements IMusicSheet {
     }
 
     @Override
-    public Collection<ISheetRecord> getNotesForTick(int tick) {
+    public ITrack getNotesForTick(int tick) {
         ensureCompiled();
-        return compiledSheet.getOrDefault(tick, Collections.emptyList());
+        return compiledSheet.getOrDefault(tick, new TrackImpl(getNewTrackName()));
     }
 
     @Override
@@ -75,14 +81,14 @@ public class MusicSheetImpl implements IMusicSheet {
         synchronized (this) {
             try {
                 compiling = true;
-                TreeMap<Integer, Collection<ISheetRecord>> result = new TreeMap<>();
+                TreeMap<Integer, ITrack> result = new TreeMap<>();
                 int compileVersion = modCount;
                 sheetStructure.values().stream()
-                        .flatMap(Collection::stream)
+                        .flatMap(iTrack -> iTrack.getSheetRecords().stream())
                         .forEach(sheetRecord -> {
                             int tick = sheetRecord.getTick();
-                            Collection<ISheetRecord> iSheetRecords = result.computeIfAbsent(tick, integer -> new LinkedList<>());
-                            iSheetRecords.add(sheetRecord);
+                            ITrack iSheetRecords = result.computeIfAbsent(tick, integer -> new TrackImpl(getNewTrackName()));
+                            iSheetRecords.getSheetRecords().add(sheetRecord);
                         });
                 this.lastCompiled = compileVersion;
                 this.compiledSheet = result;
@@ -95,7 +101,7 @@ public class MusicSheetImpl implements IMusicSheet {
     }
 
     public static class Builder {
-        private Map<String, Collection<ISheetRecord>> tracks;
+        private Map<String, ITrack> tracks;
 
         public Builder() {
             tracks = new LinkedHashMap<>();
@@ -104,9 +110,15 @@ public class MusicSheetImpl implements IMusicSheet {
         public Builder add(ISheetRecord record) {
             Sound sound = record.getNote().getSound();
             String name = sound.name();
-            Collection<ISheetRecord> iSheetRecords = tracks.computeIfAbsent(name, s -> new LinkedList<>());
-            iSheetRecords.add(record);
+            ITrack iSheetRecords = tracks.computeIfAbsent(name, s -> new TrackImpl(build().getNewTrackName()));
+            iSheetRecords.getSheetRecords().add(record);
             return this;
+        }
+
+        private String getNewTrackName() {
+            int size = tracks.size();
+            String key = String.valueOf(size);
+            return key;
         }
 
         public MusicSheetImpl build() {

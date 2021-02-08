@@ -61,7 +61,7 @@ public class MelodicaPlayer {
             }
             iMusicSheet = info.getSheet();
             try {
-                Collection<ISheetRecord> notesForTick = iMusicSheet.getNotesForTick(currentTick);
+                ITrack notesForTick = iMusicSheet.getNotesForTick(currentTick);
                 Location sourceLocation;
                 if (location == null){
                     sourceLocation = entity.getLocation();
@@ -69,7 +69,7 @@ public class MelodicaPlayer {
                     sourceLocation = location;
                 }
                 World world = sourceLocation.getWorld();
-                notesForTick.forEach(sheetRecord -> {
+                notesForTick.getSheetRecords().forEach(sheetRecord -> {
                     INote note = sheetRecord.getNote();
 
                     if (world!=null){

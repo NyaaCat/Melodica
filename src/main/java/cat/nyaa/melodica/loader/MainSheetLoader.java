@@ -6,6 +6,7 @@ import cat.nyaa.melodica.api.IMusicSheet;
 import cat.nyaa.melodica.sheet.MusicSheetImpl;
 import cat.nyaa.melodica.sheet.NoteImpl;
 import cat.nyaa.melodica.sheet.SheetRecord;
+import cat.nyaa.melodica.utils.NBSDecoder;
 import org.bukkit.Sound;
 
 import java.io.BufferedReader;
@@ -61,6 +62,10 @@ public class MainSheetLoader implements ISheetLoader {
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
+                }
+                if (file.getName().endsWith(".nbs")){
+                    IMusicSheet parse = NBSDecoder.parse(file);
+                    result.put(file.getName().substring(0, file.getName().lastIndexOf(".")), parse);
                 }
             }
         }
